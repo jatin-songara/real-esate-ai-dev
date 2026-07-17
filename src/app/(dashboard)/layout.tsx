@@ -15,6 +15,13 @@ import {
   Settings,
   LogOut,
   Sparkles,
+  Clock,
+  Users,
+  Tag,
+  Code,
+  Globe,
+  CreditCard,
+  Bell,
 } from 'lucide-react'
 
 export default function DashboardLayout({
@@ -53,8 +60,15 @@ export default function DashboardLayout({
     { name: 'Overview', href: '/dashboard', icon: LayoutDashboard },
     { name: 'Properties', href: '/dashboard/properties', icon: Home },
     { name: 'AI Voice Agents', href: '/dashboard/agents', icon: Mic },
-    { name: 'Appointments', href: '/dashboard/appointments', icon: Calendar },
+    { name: 'Viewings', href: '/dashboard/appointments', icon: Calendar },
+    { name: 'Schedule', href: '/dashboard/schedule', icon: Clock },
     { name: 'Call Logs', href: '/dashboard/conversations', icon: PhoneCall },
+    { name: 'Clients', href: '/dashboard/clients', icon: Users },
+    { name: 'Services', href: '/dashboard/services', icon: Tag },
+    { name: 'Widget', href: '/dashboard/widget', icon: Code },
+    { name: 'Website Builder', href: '/dashboard/website-builder', icon: Globe },
+    { name: 'Plans', href: '/dashboard/plans', icon: CreditCard },
+    { name: 'Notifications', href: '/dashboard/notifications', icon: Bell },
     { name: 'Support', href: '/dashboard/support', icon: MessageSquare },
     { name: 'Settings', href: '/dashboard/settings', icon: Settings },
   ]
@@ -62,16 +76,16 @@ export default function DashboardLayout({
   return (
     <div className="flex h-screen bg-slate-50 overflow-hidden">
       {/* Sidebar */}
-      <aside className="w-64 gradient-sidebar flex flex-col justify-between text-white p-4">
-        <div>
+      <aside className="w-64 gradient-sidebar flex flex-col justify-between text-white p-4 shrink-0 overflow-y-auto">
+        <div className="space-y-6">
           {/* Logo & Agency Info */}
-          <div className="mb-8 mt-2 px-2">
+          <div className="mt-2 px-2">
             <div className="flex items-center gap-2">
               <Sparkles className="w-5 h-5 text-blue-400" />
               <span className="font-bold text-lg tracking-tight">AgentFlow AI</span>
             </div>
             {business && (
-              <div className="text-xs text-blue-200 mt-1 truncate bg-blue-950/40 p-1.5 rounded border border-blue-900/50">
+              <div className="text-xs text-blue-200 mt-1.5 truncate bg-blue-950/40 p-1.5 rounded border border-blue-900/50">
                 {business.name} ({business.subscription_tier} Plan)
               </div>
             )}
@@ -97,10 +111,10 @@ export default function DashboardLayout({
         </div>
 
         {/* Footer actions */}
-        <div>
+        <div className="pt-6 border-t border-white/5 mt-6">
           <button
             onClick={handleLogout}
-            className="w-full flex items-center gap-2.5 px-3 py-2 text-[13px] font-medium rounded-lg text-red-300 hover:bg-white/5 transition-all duration-100 cursor-pointer"
+            className="w-full flex items-center gap-2.5 px-3.5 py-2.5 text-xs font-semibold rounded-xl text-red-300 hover:bg-white/5 transition-all duration-100 cursor-pointer"
           >
             <LogOut className="w-4 h-4" />
             <span>Sign Out</span>
@@ -111,7 +125,7 @@ export default function DashboardLayout({
       {/* Main Content Area */}
       <main className="flex-1 flex flex-col overflow-hidden">
         {/* Header bar */}
-        <header className="h-14 bg-white border-b border-slate-200 flex items-center justify-between px-6">
+        <header className="h-14 bg-white border-b border-slate-200 flex items-center justify-between px-6 shrink-0">
           <h1 className="text-sm font-semibold text-slate-800 uppercase tracking-wider">
             {menuItems.find((m) => m.href === pathname)?.name || 'Dashboard'}
           </h1>
