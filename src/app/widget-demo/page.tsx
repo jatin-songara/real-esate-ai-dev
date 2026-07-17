@@ -100,39 +100,50 @@ function WidgetDemoContent() {
       </div>
 
       {/* Call interaction panel */}
-      <footer className="flex flex-col items-center justify-center pt-3 border-t border-slate-100 dark:border-white/5 space-y-3">
-        {/* Animated wave bars */}
+      <footer className="flex flex-col items-center justify-center pt-3 border-t border-slate-100 dark:border-white/5 space-y-3.5">
+        {/* Animated organic waveform */}
         {isConnected && (
-          <div className="flex items-center gap-1 h-5 mb-1">
-            <span className="waveform-bar h-4" />
-            <span className="waveform-bar h-5" />
-            <span className="waveform-bar h-3" />
-            <span className="waveform-bar h-5" />
-            <span className="waveform-bar h-2" />
+          <div className="flex items-end gap-1.5 h-6 mb-2">
+            <span className="waveform-bar h-4 w-0.5" />
+            <span className="waveform-bar h-6 w-0.5" />
+            <span className="waveform-bar h-3 w-0.5" />
+            <span className="waveform-bar h-5 w-0.5" />
+            <span className="waveform-bar h-2 w-0.5" />
+            <span className="waveform-bar h-4 w-0.5" />
+            <span className="waveform-bar h-6 w-0.5" />
+            <span className="waveform-bar h-3 w-0.5" />
           </div>
         )}
 
         <div className="flex items-center gap-4">
           {isConnected ? (
-            <button
-              onClick={stopSession}
-              className="w-12 h-12 rounded-full bg-red-500 hover:bg-red-600 text-white flex items-center justify-center shadow-lg transition-transform hover:scale-105"
-            >
-              <PhoneOff className="w-5 h-5" />
-            </button>
+            <div className="relative">
+              <span className="absolute -inset-2 bg-red-500/20 rounded-full blur pulse-ring" />
+              <button
+                onClick={stopSession}
+                className="relative w-14 h-14 rounded-full bg-red-500 hover:bg-red-600 text-white flex items-center justify-center shadow-lg transition-transform hover:scale-105"
+              >
+                <PhoneOff className="w-5 h-5" />
+              </button>
+            </div>
           ) : (
-            <button
-              onClick={() => startSession(agent.id)}
-              disabled={isConnecting}
-              style={{ backgroundColor: accentColor }}
-              className="w-14 h-14 rounded-full text-white flex items-center justify-center shadow-lg transition-transform hover:scale-105 disabled:opacity-50"
-            >
-              {isConnecting ? (
-                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-              ) : (
-                <Mic className="w-6 h-6" />
+            <div className="relative">
+              {!isConnecting && (
+                <span className="absolute -inset-2 rounded-full blur opacity-40 pulse-ring" style={{ background: accentColor }} />
               )}
-            </button>
+              <button
+                onClick={() => startSession(agent.id)}
+                disabled={isConnecting}
+                style={{ backgroundColor: accentColor }}
+                className="relative w-16 h-16 rounded-full text-white flex items-center justify-center shadow-2xl transition-transform hover:scale-105 disabled:opacity-50"
+              >
+                {isConnecting ? (
+                  <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                ) : (
+                  <Mic className="w-7 h-7" />
+                )}
+              </button>
+            </div>
           )}
         </div>
       </footer>

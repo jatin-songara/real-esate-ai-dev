@@ -10,7 +10,25 @@ export async function POST(req: Request) {
     const user = await getSessionUser(req)
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-    const { title, description, address, price, type, bedrooms, bathrooms, sqft, amenities, images } = await req.json()
+    const {
+      title,
+      description,
+      address,
+      city,
+      state,
+      zip,
+      price,
+      type,
+      category,
+      status,
+      bedrooms,
+      bathrooms,
+      parking_spaces,
+      sqft,
+      year_built,
+      amenities,
+      images,
+    } = await req.json()
 
     const dbClient = await getDbClient()
     if (dbClient.type !== 'd1') return NextResponse.json({ error: 'D1 not configured' }, { status: 500 })
@@ -21,8 +39,8 @@ export async function POST(req: Request) {
 
     await dbClient.db
       .prepare(
-        `INSERT INTO properties (id, business_id, title, description, address, price, type, bedrooms, bathrooms, sqft, amenities, images)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+        `INSERT INTO properties (id, business_id, title, description, address, city, state, zip, price, type, category, status, bedrooms, bathrooms, parking_spaces, sqft, year_built, amenities, images)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
       )
       .bind(
         id,
@@ -30,11 +48,18 @@ export async function POST(req: Request) {
         title,
         description || '',
         address,
+        city || '',
+        state || '',
+        zip || '',
         parseFloat(price),
         type,
+        category || 'House',
+        status || 'Available',
         parseInt(bedrooms),
         parseFloat(bathrooms),
+        parseInt(parking_spaces || 0),
         parseFloat(sqft),
+        year_built ? parseInt(year_built) : null,
         amenitiesJson,
         imagesJson
       )
@@ -48,11 +73,18 @@ export async function POST(req: Request) {
         title,
         description,
         address,
+        city,
+        state,
+        zip,
         price,
         type,
+        category,
+        status,
         bedrooms,
         bathrooms,
+        parking_spaces,
         sqft,
+        year_built,
         amenities,
         images,
       },
@@ -68,7 +100,26 @@ export async function PUT(req: Request) {
     const user = await getSessionUser(req)
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-    const { id, title, description, address, price, type, bedrooms, bathrooms, sqft, amenities, images } = await req.json()
+    const {
+      id,
+      title,
+      description,
+      address,
+      city,
+      state,
+      zip,
+      price,
+      type,
+      category,
+      status,
+      bedrooms,
+      bathrooms,
+      parking_spaces,
+      sqft,
+      year_built,
+      amenities,
+      images,
+    } = await req.json()
 
     const dbClient = await getDbClient()
     if (dbClient.type !== 'd1') return NextResponse.json({ error: 'D1 not configured' }, { status: 500 })
@@ -79,18 +130,25 @@ export async function PUT(req: Request) {
     await dbClient.db
       .prepare(
         `UPDATE properties
-         SET title = ?, description = ?, address = ?, price = ?, type = ?, bedrooms = ?, bathrooms = ?, sqft = ?, amenities = ?, images = ?
+         SET title = ?, description = ?, address = ?, city = ?, state = ?, zip = ?, price = ?, type = ?, category = ?, status = ?, bedrooms = ?, bathrooms = ?, parking_spaces = ?, sqft = ?, year_built = ?, amenities = ?, images = ?
          WHERE id = ? AND business_id = ?`
       )
       .bind(
         title,
         description || '',
         address,
+        city || '',
+        state || '',
+        zip || '',
         parseFloat(price),
         type,
+        category || 'House',
+        status || 'Available',
         parseInt(bedrooms),
         parseFloat(bathrooms),
+        parseInt(parking_spaces || 0),
         parseFloat(sqft),
+        year_built ? parseInt(year_built) : null,
         amenitiesJson,
         imagesJson,
         id,
@@ -106,11 +164,18 @@ export async function PUT(req: Request) {
         title,
         description,
         address,
+        city,
+        state,
+        zip,
         price,
         type,
+        category,
+        status,
         bedrooms,
         bathrooms,
+        parking_spaces,
         sqft,
+        year_built,
         amenities,
         images,
       },

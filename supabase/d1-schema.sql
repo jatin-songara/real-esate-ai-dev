@@ -1,4 +1,4 @@
--- SQLite compatible schema for Cloudflare D1 with Native Auth
+-- SQLite compatible schema for Cloudflare D1 with Native Auth and Full BRD/FRD parameters
 
 -- 1. Profiles
 CREATE TABLE IF NOT EXISTS profiles (
@@ -26,6 +26,14 @@ CREATE TABLE IF NOT EXISTS businesses (
     stripe_publishable_key TEXT,
     subscription_tier TEXT DEFAULT 'Free' NOT NULL,
     stripe_subscription_id TEXT,
+    contact_phone TEXT,
+    support_email TEXT,
+    website_url TEXT,
+    timezone TEXT DEFAULT 'UTC' NOT NULL,
+    maps_latitude REAL,
+    maps_longitude REAL,
+    operating_hours TEXT DEFAULT '{}' NOT NULL, -- JSON config of active slots per weekday
+    website_addon_subscribed BOOLEAN DEFAULT 0 NOT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
     FOREIGN KEY(owner_id) REFERENCES profiles(id) ON DELETE CASCADE
 );
@@ -37,11 +45,18 @@ CREATE TABLE IF NOT EXISTS properties (
     title TEXT NOT NULL,
     description TEXT,
     address TEXT NOT NULL,
+    city TEXT,
+    state TEXT,
+    zip TEXT,
     price REAL NOT NULL,
     type TEXT CHECK (type IN ('sale', 'rent')) NOT NULL,
+    category TEXT CHECK (category IN ('House', 'Apartment', 'Commercial')) DEFAULT 'House' NOT NULL,
+    status TEXT CHECK (status IN ('Available', 'Pending', 'Sold')) DEFAULT 'Available' NOT NULL,
     bedrooms INTEGER NOT NULL,
     bathrooms REAL NOT NULL,
+    parking_spaces INTEGER DEFAULT 0 NOT NULL,
     sqft REAL NOT NULL,
+    year_built INTEGER,
     amenities TEXT DEFAULT '[]' NOT NULL, -- JSON array of strings
     images TEXT DEFAULT '[]' NOT NULL, -- JSON array of strings
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
@@ -61,6 +76,8 @@ CREATE TABLE IF NOT EXISTS agents (
     custom_qa TEXT DEFAULT '[]' NOT NULL, -- JSON array of QA objects
     widget_color TEXT DEFAULT '#2563eb' NOT NULL,
     widget_theme TEXT DEFAULT 'light' NOT NULL,
+    interpretation_level TEXT DEFAULT 'medium' NOT NULL,
+    service_type TEXT CHECK (service_type IN ('Buyer Consultation', 'Viewing Property')) DEFAULT 'Viewing Property' NOT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
     FOREIGN KEY(business_id) REFERENCES businesses(id) ON DELETE CASCADE,
     FOREIGN KEY(property_id) REFERENCES properties(id) ON DELETE SET NULL

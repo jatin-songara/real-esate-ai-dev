@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react'
 import { useBusinessStore } from '../../../../store/business'
-import { Plus, Trash2, Edit3, X, Home } from 'lucide-react'
+import { Plus, Trash2, Edit3, X, Home, ShieldCheck } from 'lucide-react'
 import { Property } from '../../../../types'
 
 export default function PropertiesDashboard() {
@@ -14,26 +14,44 @@ export default function PropertiesDashboard() {
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
   const [address, setAddress] = useState('')
+  const [city, setCity] = useState('')
+  const [state, setState] = useState('')
+  const [zip, setZip] = useState('')
   const [price, setPrice] = useState('')
   const [type, setType] = useState<'sale' | 'rent'>('sale')
+  const [category, setCategory] = useState<'House' | 'Apartment' | 'Commercial'>('House')
+  const [status, setStatus] = useState<'Available' | 'Pending' | 'Sold'>('Available')
   const [bedrooms, setBedrooms] = useState('2')
   const [bathrooms, setBathrooms] = useState('1')
+  const [parkingSpaces, setParkingSpaces] = useState('1')
   const [sqft, setSqft] = useState('1000')
+  const [yearBuilt, setYearBuilt] = useState('')
   const [amenities, setAmenities] = useState('')
   const [imageUrl, setImageUrl] = useState('')
+
+  // Double-Confirmation Security Constraint
+  const [isManuallyVerified, setIsManuallyVerified] = useState(false)
 
   const openAddModal = () => {
     setEditingId(null)
     setTitle('')
     setDescription('')
     setAddress('')
+    setCity('')
+    setState('')
+    setZip('')
     setPrice('')
     setType('sale')
+    setCategory('House')
+    setStatus('Available')
     setBedrooms('2')
     setBathrooms('1')
+    setParkingSpaces('1')
     setSqft('1000')
+    setYearBuilt('')
     setAmenities('')
     setImageUrl('')
+    setIsManuallyVerified(false)
     setShowModal(true)
   }
 
@@ -42,19 +60,27 @@ export default function PropertiesDashboard() {
     setTitle(p.title)
     setDescription(p.description || '')
     setAddress(p.address)
+    setCity(p.city || '')
+    setState(p.state || '')
+    setZip(p.zip || '')
     setPrice(p.price.toString())
     setType(p.type)
+    setCategory(p.category || 'House')
+    setStatus(p.status || 'Available')
     setBedrooms(p.bedrooms.toString())
     setBathrooms(p.bathrooms.toString())
+    setParkingSpaces((p.parking_spaces || 0).toString())
     setSqft(p.sqft.toString())
-    setAmenities(p.amenities.join(', '))
+    setYearBuilt(p.year_built?.toString() || '')
+    setAmenities(p.amenities?.join(', ') || '')
     setImageUrl(p.images?.[0] || '')
+    setIsManuallyVerified(false) // Force manual double-check for every save/update
     setShowModal(true)
   }
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!business) return
+    if (!business || !isManuallyVerified) return
 
     const amenitiesArray = amenities.split(',').map((x) => x.trim()).filter(Boolean)
     const imagesArray = imageUrl ? [imageUrl] : []
@@ -63,11 +89,18 @@ export default function PropertiesDashboard() {
       title,
       description,
       address,
+      city,
+      state,
+      zip,
       price: parseFloat(price),
       type,
+      category,
+      status,
       bedrooms: parseInt(bedrooms),
       bathrooms: parseFloat(bathrooms),
+      parking_spaces: parseInt(parkingSpaces),
       sqft: parseFloat(sqft),
+      year_built: yearBuilt ? parseInt(yearBuilt) : null,
       amenities: amenitiesArray,
       images: imagesArray,
     }
@@ -115,7 +148,7 @@ export default function PropertiesDashboard() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-12">
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-lg font-bold text-slate-800 uppercase tracking-wide">Property Listings</h2>
@@ -135,7 +168,7 @@ export default function PropertiesDashboard() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {properties.map((p: Property) => (
-            <div key={p.id} className="card-surface overflow-hidden flex flex-col justify-between">
+            <div key={p.id} className="card-surface overflow-hidden flex flex-col justify-between hover:shadow-md transition-all">
               {p.images?.[0] ? (
                 <img src={p.images[0]} alt={p.title} className="h-44 w-full object-cover" />
               ) : (
@@ -147,33 +180,40 @@ export default function PropertiesDashboard() {
                 <div>
                   <div className="flex items-center justify-between">
                     <span className={`badge ${
-                      p.type === 'sale' ? 'bg-blue-50 border-blue-200 text-blue-700' : 'bg-teal-50 border-teal-200 text-teal-700'
+                      p.type === 'rent' ? 'bg-indigo-50 border-indigo-200 text-indigo-700' : 'bg-emerald-50 border-emerald-200 text-emerald-700'
                     }`}>
-                      For {p.type === 'sale' ? 'Sale' : 'Rent'}
+                      For {p.type === 'rent' ? 'Rent' : 'Sale'}
                     </span>
-                    <span className="text-base font-bold text-slate-800">
-                      ${p.price.toLocaleString()}{p.type === 'rent' ? '/mo' : ''}
+                    <span className={`badge ${
+                      p.status === 'Available' ? 'bg-blue-50 border-blue-200 text-blue-700' : 'bg-slate-100 border-slate-200 text-slate-600'
+                    }`}>
+                      {p.status}
                     </span>
                   </div>
-                  <h3 className="font-bold text-slate-800 mt-2 text-sm">{p.title}</h3>
-                  <p className="text-xs text-slate-500 mt-1 truncate">{p.address}</p>
+                  <h4 className="font-bold text-slate-800 text-sm mt-3 line-clamp-1">{p.title}</h4>
+                  <p className="text-[10px] text-slate-400 mt-1">{p.address}, {p.city}</p>
+                  <p className="text-xs text-slate-500 mt-2 line-clamp-2">{p.description}</p>
 
-                  <div className="flex items-center gap-3 mt-3 text-[11px] text-slate-500">
-                    <span>{p.bedrooms} Beds</span>
-                    <span>•</span>
-                    <span>{p.bathrooms} Baths</span>
-                    <span>•</span>
-                    <span>{p.sqft} sqft</span>
+                  <div className="grid grid-cols-3 gap-2 mt-4 text-[10px] text-slate-500 bg-slate-50 p-2 rounded-lg border border-slate-100">
+                    <div>🛏️ {p.bedrooms} Beds</div>
+                    <div>🚿 {p.bathrooms} Baths</div>
+                    <div>🚗 {p.parking_spaces || 0} Parking</div>
                   </div>
                 </div>
 
-                <div className="flex items-center justify-end gap-2 mt-4 pt-3 border-t border-slate-100">
-                  <button onClick={() => openEditModal(p)} className="p-1.5 hover:bg-slate-100 rounded text-slate-600">
-                    <Edit3 className="w-4 h-4" />
-                  </button>
-                  <button onClick={() => handleDelete(p.id)} className="p-1.5 hover:bg-red-50 rounded text-red-600">
-                    <Trash2 className="w-4 h-4" />
-                  </button>
+                <div className="flex items-center justify-between border-t border-slate-100 pt-3 mt-4">
+                  <div className="text-sm font-bold text-blue-600">
+                    ${p.price.toLocaleString()}
+                    {p.type === 'rent' && <span className="text-[9px] text-slate-400 font-normal">/mo</span>}
+                  </div>
+                  <div className="flex gap-2">
+                    <button onClick={() => openEditModal(p)} className="p-1.5 text-slate-500 hover:text-blue-600 hover:bg-slate-50 rounded">
+                      <Edit3 className="w-4 h-4" />
+                    </button>
+                    <button onClick={() => handleDelete(p.id)} className="p-1.5 text-slate-500 hover:text-red-600 hover:bg-slate-50 rounded">
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -181,70 +221,145 @@ export default function PropertiesDashboard() {
         </div>
       )}
 
-      {/* CRUD Modal */}
+      {/* Edit/Add Modal */}
       {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
-          <div className="bg-white w-full max-w-lg rounded-xl shadow-xl overflow-hidden border border-slate-100 animate-slide-up">
-            <header className="px-5 py-4 bg-slate-50 border-b border-slate-100 flex items-center justify-between">
-              <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wide">
-                {editingId ? 'Edit Property' : 'Add Property Listing'}
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl animate-fade-in border border-slate-100">
+            <header className="px-6 py-4 bg-slate-50 border-b border-slate-100 flex justify-between items-center">
+              <h3 className="font-bold text-slate-800 text-sm uppercase tracking-wide">
+                {editingId ? 'Edit Property Listing' : 'Add Property Listing'}
               </h3>
-              <button onClick={() => setShowModal(false)} className="text-slate-400 hover:text-slate-600">
-                <X className="w-4 h-4" />
+              <button onClick={() => setShowModal(false)} className="p-1 hover:bg-slate-200 rounded">
+                <X className="w-4.5 h-4.5 text-slate-400" />
               </button>
             </header>
-            <form onSubmit={handleSave} className="p-5 space-y-4 max-h-[75vh] overflow-y-auto">
-              <div>
-                <label className="block text-[11px] font-semibold text-slate-600 uppercase mb-1">Title</label>
-                <input type="text" className="input-field" value={title} onChange={(e) => setTitle(e.target.value)} required placeholder="Luxury Penthouse in Downtown" />
-              </div>
-              <div>
-                <label className="block text-[11px] font-semibold text-slate-600 uppercase mb-1">Description</label>
-                <textarea rows={3} className="input-field" value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Stunning views, modern finishes..." />
-              </div>
-              <div>
-                <label className="block text-[11px] font-semibold text-slate-600 uppercase mb-1">Address</label>
-                <input type="text" className="input-field" value={address} onChange={(e) => setAddress(e.target.value)} required placeholder="123 Ocean Drive, Miami, FL" />
-              </div>
+
+            <form onSubmit={handleSave} className="p-6 space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-[11px] font-semibold text-slate-600 uppercase mb-1">Price</label>
-                  <input type="number" className="input-field" value={price} onChange={(e) => setPrice(e.target.value)} required placeholder="1200000" />
+                  <label className="block text-[10px] font-semibold text-slate-500 uppercase mb-1">Listing Title</label>
+                  <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} className="input-field" placeholder="Beautiful Downtown Loft" required />
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="block text-[10px] font-semibold text-slate-500 uppercase mb-1">Type</label>
+                    <select value={type} onChange={(e) => setType(e.target.value as any)} className="input-field py-2 text-xs">
+                      <option value="sale">For Sale</option>
+                      <option value="rent">For Rent</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-semibold text-slate-500 uppercase mb-1">Category</label>
+                    <select value={category} onChange={(e) => setCategory(e.target.value as any)} className="input-field py-2 text-xs">
+                      <option value="House">House</option>
+                      <option value="Apartment">Apartment</option>
+                      <option value="Commercial">Commercial</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-semibold text-slate-500 uppercase mb-1">Description</label>
+                <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={3} className="input-field" placeholder="Describe the listing details..." />
+              </div>
+
+              <div className="grid grid-cols-4 gap-3">
+                <div className="col-span-2">
+                  <label className="block text-[10px] font-semibold text-slate-500 uppercase mb-1">Address</label>
+                  <input type="text" value={address} onChange={(e) => setAddress(e.target.value)} className="input-field" placeholder="123 Main St" required />
                 </div>
                 <div>
-                  <label className="block text-[11px] font-semibold text-slate-600 uppercase mb-1">Listing Type</label>
-                  <select className="input-field" value={type} onChange={(e) => setType(e.target.value as any)}>
-                    <option value="sale">For Sale</option>
-                    <option value="rent">For Rent</option>
+                  <label className="block text-[10px] font-semibold text-slate-500 uppercase mb-1">City</label>
+                  <input type="text" value={city} onChange={(e) => setCity(e.target.value)} className="input-field" placeholder="Miami" required />
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="block text-[10px] font-semibold text-slate-500 uppercase mb-1">State</label>
+                    <input type="text" value={state} onChange={(e) => setState(e.target.value)} className="input-field" placeholder="FL" required />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-semibold text-slate-500 uppercase mb-1">Zip</label>
+                    <input type="text" value={zip} onChange={(e) => setZip(e.target.value)} className="input-field" placeholder="33131" required />
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-6 gap-3">
+                <div className="col-span-2">
+                  <label className="block text-[10px] font-semibold text-slate-500 uppercase mb-1">Price ($)</label>
+                  <input type="number" value={price} onChange={(e) => setPrice(e.target.value)} className="input-field" placeholder="450000" required />
+                </div>
+                <div>
+                  <label className="block text-[10px] font-semibold text-slate-500 uppercase mb-1">Bedrooms</label>
+                  <input type="number" value={bedrooms} onChange={(e) => setBedrooms(e.target.value)} className="input-field" required />
+                </div>
+                <div>
+                  <label className="block text-[10px] font-semibold text-slate-500 uppercase mb-1">Bathrooms</label>
+                  <input type="number" step="0.5" value={bathrooms} onChange={(e) => setBathrooms(e.target.value)} className="input-field" required />
+                </div>
+                <div>
+                  <label className="block text-[10px] font-semibold text-slate-500 uppercase mb-1">Parking</label>
+                  <input type="number" value={parkingSpaces} onChange={(e) => setParkingSpaces(e.target.value)} className="input-field" required />
+                </div>
+                <div>
+                  <label className="block text-[10px] font-semibold text-slate-500 uppercase mb-1">Sq Ft</label>
+                  <input type="number" value={sqft} onChange={(e) => setSqft(e.target.value)} className="input-field" required />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-[10px] font-semibold text-slate-500 uppercase mb-1">Year Built</label>
+                  <input type="number" value={yearBuilt} onChange={(e) => setYearBuilt(e.target.value)} className="input-field" placeholder="e.g. 2018" />
+                </div>
+                <div className="col-span-2">
+                  <label className="block text-[10px] font-semibold text-slate-500 uppercase mb-1">Status</label>
+                  <select value={status} onChange={(e) => setStatus(e.target.value as any)} className="input-field py-2 text-xs">
+                    <option value="Available">Available</option>
+                    <option value="Pending">Pending</option>
+                    <option value="Sold">Sold</option>
                   </select>
                 </div>
               </div>
-              <div className="grid grid-cols-3 gap-4">
+
+              <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-[11px] font-semibold text-slate-600 uppercase mb-1">Bedrooms</label>
-                  <input type="number" className="input-field" value={bedrooms} onChange={(e) => setBedrooms(e.target.value)} required />
+                  <label className="block text-[10px] font-semibold text-slate-500 uppercase mb-1">Predefined Amenities (comma separated)</label>
+                  <input type="text" value={amenities} onChange={(e) => setAmenities(e.target.value)} className="input-field" placeholder="Pool, Smart Home, Balcony" />
                 </div>
                 <div>
-                  <label className="block text-[11px] font-semibold text-slate-600 uppercase mb-1">Bathrooms</label>
-                  <input type="number" step="0.5" className="input-field" value={bathrooms} onChange={(e) => setBathrooms(e.target.value)} required />
-                </div>
-                <div>
-                  <label className="block text-[11px] font-semibold text-slate-600 uppercase mb-1">Square Feet</label>
-                  <input type="number" className="input-field" value={sqft} onChange={(e) => setSqft(e.target.value)} required />
+                  <label className="block text-[10px] font-semibold text-slate-500 uppercase mb-1">Image URL</label>
+                  <input type="url" value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} className="input-field" placeholder="https://r2.cdn.com/property.jpg" />
                 </div>
               </div>
-              <div>
-                <label className="block text-[11px] font-semibold text-slate-600 uppercase mb-1">Image URL</label>
-                <input type="url" className="input-field" value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} placeholder="https://images.unsplash.com/photo-..." />
+
+              {/* Security Constraint Verification Checkbox */}
+              <div className="bg-blue-50 border border-blue-200 p-4 rounded-xl flex items-start gap-2.5 mt-4">
+                <input
+                  type="checkbox"
+                  id="confirm-verified"
+                  checked={isManuallyVerified}
+                  onChange={(e) => setIsManuallyVerified(e.target.checked)}
+                  className="rounded text-blue-600 mt-1 cursor-pointer"
+                  required
+                />
+                <label htmlFor="confirm-verified" className="text-xs text-blue-900 font-semibold cursor-pointer select-none">
+                  <span className="flex items-center gap-1.5"><ShieldCheck className="w-4.5 h-4.5 text-blue-700" /> Security Verification Constraint</span>
+                  <span className="block font-normal text-[10px] text-blue-700 mt-0.5">
+                    I manually verify that the pricing, availability, and critical description fields of this real estate listing are accurate and correct.
+                  </span>
+                </label>
               </div>
-              <div>
-                <label className="block text-[11px] font-semibold text-slate-600 uppercase mb-1">Amenities (comma-separated)</label>
-                <input type="text" className="input-field" value={amenities} onChange={(e) => setAmenities(e.target.value)} placeholder="Pool, Gym, Parking, Balcony" />
+
+              <div className="flex justify-end gap-3 pt-4 border-t border-slate-100 mt-6">
+                <button type="button" onClick={() => setShowModal(false)} className="btn-secondary">
+                  Cancel
+                </button>
+                <button type="submit" disabled={!isManuallyVerified} className="btn-primary">
+                  {editingId ? 'Save Changes' : 'Add Property'}
+                </button>
               </div>
-              <footer className="pt-4 flex justify-end gap-2 border-t border-slate-100 mt-6">
-                <button type="button" onClick={() => setShowModal(false)} className="btn-secondary">Cancel</button>
-                <button type="submit" className="btn-primary">Save Changes</button>
-              </footer>
             </form>
           </div>
         </div>

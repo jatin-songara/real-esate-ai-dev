@@ -13,6 +13,14 @@ export interface Business {
   stripe_publishable_key?: string;
   subscription_tier: 'Free' | 'Pro' | 'Business';
   stripe_subscription_id?: string;
+  contact_phone?: string;
+  support_email?: string;
+  website_url?: string;
+  timezone: string;
+  maps_latitude?: number;
+  maps_longitude?: number;
+  operating_hours: string;
+  website_addon_subscribed: boolean;
   created_at: string;
 }
 
@@ -22,11 +30,18 @@ export interface Property {
   title: string;
   description: string;
   address: string;
+  city?: string;
+  state?: string;
+  zip?: string;
   price: number;
   type: 'sale' | 'rent';
+  category: 'House' | 'Apartment' | 'Commercial';
+  status: 'Available' | 'Pending' | 'Sold';
   bedrooms: number;
   bathrooms: number;
+  parking_spaces: number;
   sqft: number;
+  year_built?: number;
   amenities: string[];
   images: string[];
   created_at: string;
@@ -49,6 +64,8 @@ export interface Agent {
   custom_qa: CustomQA[];
   widget_color: string;
   widget_theme: 'light' | 'dark';
+  interpretation_level: string;
+  service_type: 'Buyer Consultation' | 'Viewing Property';
   created_at: string;
 }
 
