@@ -4,24 +4,36 @@ import { getSessionUser } from '../../../../utils/auth'
 
 export const runtime = 'edge'
 
-// 1. Create AI Agent
+// 1. Add new Agent
 export async function POST(req: Request) {
   try {
     const user = await getSessionUser(req)
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-    const { name, property_id, voice, personality, greeting, language, custom_qa, widget_color, widget_theme } = await req.json()
+    const {
+      property_id,
+      name,
+      voice,
+      personality,
+      greeting,
+      language,
+      custom_qa,
+      widget_color,
+      widget_theme,
+      interpretation_level,
+      service_type,
+    } = await req.json()
 
     const dbClient = await getDbClient()
     if (dbClient.type !== 'd1') return NextResponse.json({ error: 'D1 not configured' }, { status: 500 })
 
     const id = crypto.randomUUID()
-    const qaJson = JSON.stringify(custom_qa || [])
+    const customQaJson = JSON.stringify(custom_qa || [])
 
     await dbClient.db
       .prepare(
-        `INSERT INTO agents (id, business_id, property_id, name, voice, personality, greeting, language, custom_qa, widget_color, widget_theme)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+        `INSERT INTO agents (id, business_id, property_id, name, voice, personality, greeting, language, custom_qa, widget_color, widget_theme, interpretation_level, service_type)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
       )
       .bind(
         id,
@@ -32,9 +44,11 @@ export async function POST(req: Request) {
         personality,
         greeting,
         language || 'English',
-        qaJson,
+        customQaJson,
         widget_color || '#2563eb',
-        widget_theme || 'light'
+        widget_theme || 'light',
+        interpretation_level || 'medium',
+        service_type || 'Viewing Property'
       )
       .run()
 
@@ -52,6 +66,8 @@ export async function POST(req: Request) {
         custom_qa,
         widget_color,
         widget_theme,
+        interpretation_level,
+        service_type,
       },
     })
   } catch (err: any) {
@@ -59,23 +75,36 @@ export async function POST(req: Request) {
   }
 }
 
-// 2. Update AI Agent
+// 2. Update existing Agent
 export async function PUT(req: Request) {
   try {
     const user = await getSessionUser(req)
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-    const { id, name, property_id, voice, personality, greeting, language, custom_qa, widget_color, widget_theme } = await req.json()
+    const {
+      id,
+      property_id,
+      name,
+      voice,
+      personality,
+      greeting,
+      language,
+      custom_qa,
+      widget_color,
+      widget_theme,
+      interpretation_level,
+      service_type,
+    } = await req.json()
 
     const dbClient = await getDbClient()
     if (dbClient.type !== 'd1') return NextResponse.json({ error: 'D1 not configured' }, { status: 500 })
 
-    const qaJson = JSON.stringify(custom_qa || [])
+    const customQaJson = JSON.stringify(custom_qa || [])
 
     await dbClient.db
       .prepare(
         `UPDATE agents
-         SET property_id = ?, name = ?, voice = ?, personality = ?, greeting = ?, language = ?, custom_qa = ?, widget_color = ?, widget_theme = ?
+         SET property_id = ?, name = ?, voice = ?, personality = ?, greeting = ?, language = ?, custom_qa = ?, widget_color = ?, widget_theme = ?, interpretation_level = ?, service_type = ?
          WHERE id = ? AND business_id = ?`
       )
       .bind(
@@ -85,9 +114,11 @@ export async function PUT(req: Request) {
         personality,
         greeting,
         language || 'English',
-        qaJson,
+        customQaJson,
         widget_color || '#2563eb',
         widget_theme || 'light',
+        interpretation_level || 'medium',
+        service_type || 'Viewing Property',
         id,
         user.business_id
       )
@@ -107,6 +138,8 @@ export async function PUT(req: Request) {
         custom_qa,
         widget_color,
         widget_theme,
+        interpretation_level,
+        service_type,
       },
     })
   } catch (err: any) {
@@ -114,7 +147,7 @@ export async function PUT(req: Request) {
   }
 }
 
-// 3. Delete AI Agent
+// 3. Delete Agent
 export async function DELETE(req: Request) {
   try {
     const user = await getSessionUser(req)

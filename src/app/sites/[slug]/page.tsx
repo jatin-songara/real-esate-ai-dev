@@ -345,6 +345,24 @@ export default function AgentSitePage() {
               </button>
             </form>
           </div>
+
+          {/* Office Location Card */}
+          {business.maps_latitude && business.maps_longitude && (
+            <div className="card-surface p-5">
+              <h3 className="text-xs font-bold text-slate-800 uppercase tracking-wider mb-3">Office Location</h3>
+              <div className="h-44 w-full rounded-xl overflow-hidden border border-slate-100">
+                <iframe
+                  title="Office Location Map"
+                  width="100%"
+                  height="100%"
+                  style={{ border: 0 }}
+                  loading="lazy"
+                  allowFullScreen
+                  src={`https://maps.google.com/maps?q=${business.maps_latitude},${business.maps_longitude}&t=&z=15&ie=UTF8&iwloc=&output=embed`}
+                />
+              </div>
+            </div>
+          )}
         </section>
       </main>
 
