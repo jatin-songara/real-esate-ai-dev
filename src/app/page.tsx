@@ -75,7 +75,7 @@ export default function LandingPage() {
             <Sparkles className="w-5 h-5 text-white" />
           </div>
           <span className="font-extrabold text-xl tracking-tight bg-gradient-to-r from-white via-slate-100 to-blue-400 bg-clip-text text-transparent">
-            AgentFlow AI
+            Nuvanta AI
           </span>
         </div>
         <div className="flex items-center gap-6">
@@ -211,7 +211,7 @@ export default function LandingPage() {
 
       {/* Footer */}
       <footer className="border-t border-white/5 py-10 text-center text-xs text-slate-500 bg-slate-950 relative z-10">
-        &copy; {new Date().getFullYear()} AgentFlow AI Inc. All rights reserved.
+        &copy; {new Date().getFullYear()} Nuvanta Software Solutions. All rights reserved.
       </footer>
     </div>
   )

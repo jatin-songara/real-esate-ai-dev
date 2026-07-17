@@ -82,7 +82,7 @@ export default function DashboardLayout({
           <div className="mt-2 px-2">
             <div className="flex items-center gap-2">
               <Sparkles className="w-5 h-5 text-blue-400" />
-              <span className="font-bold text-lg tracking-tight">AgentFlow AI</span>
+              <span className="font-bold text-lg tracking-tight">Nuvanta AI</span>
             </div>
             {business && (
               <div className="text-xs text-blue-200 mt-1.5 truncate bg-blue-950/40 p-1.5 rounded border border-blue-900/50">

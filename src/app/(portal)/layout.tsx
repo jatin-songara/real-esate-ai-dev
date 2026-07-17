@@ -14,7 +14,7 @@ export default function PortalLayout({
         {children}
       </main>
       <footer className="bg-white border-t border-slate-200 py-6 text-center text-xs text-slate-400 flex-shrink-0">
-        &copy; {new Date().getFullYear()} AgentFlow AI Booking. All rights reserved.
+        &copy; {new Date().getFullYear()} Nuvanta Software Solutions. All rights reserved.
       </footer>
     </div>
   )
