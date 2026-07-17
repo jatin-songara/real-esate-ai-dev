@@ -240,7 +240,7 @@ export default function ClientPortalPage() {
                   <p className="text-xs text-slate-500 mt-2 line-clamp-2">{property.description}</p>
                 </div>
                 <div className="text-sm font-bold text-blue-600 border-t border-slate-100 pt-2.5 mt-3">
-                  ${property.price.toLocaleString()}
+                  ₹{property.price.toLocaleString()}
                 </div>
               </div>
             </div>
@@ -272,12 +272,12 @@ export default function ClientPortalPage() {
           {/* Payment Card */}
           <div className="card-surface p-5">
             <h3 className="text-xs font-bold text-slate-800 uppercase tracking-wider mb-4 flex items-center gap-2">
-              <DollarSign className="w-4 h-4 text-slate-500" /> Billing and Fees
+              <span className="text-slate-500 font-bold text-sm">₹</span> Billing and Fees
             </h3>
             <div className="flex items-center justify-between bg-slate-50 p-3.5 rounded-lg border border-slate-100 mb-4">
               <div>
                 <span className="text-[10px] text-slate-400 uppercase font-semibold">Viewing Deposit</span>
-                <div className="text-sm font-bold text-slate-800">${appointment.payment_amount}</div>
+                <div className="text-sm font-bold text-slate-800">₹{appointment.payment_amount}</div>
               </div>
               <span className={`badge ${
                 appointment.payment_status === 'paid_stripe' || appointment.payment_status === 'paid_cash'

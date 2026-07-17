@@ -245,7 +245,7 @@ export default function AgentSitePage() {
                   </div>
                   <div className="flex items-center justify-between border-t border-slate-100 pt-3 mt-4">
                     <div className="text-base font-bold text-blue-600">
-                      ${p.price.toLocaleString()}
+                      ₹{p.price.toLocaleString()}
                       <span className="text-[10px] text-slate-400 font-normal">
                         {p.type === 'rent' ? '/mo' : ''}
                       </span>
@@ -286,7 +286,7 @@ export default function AgentSitePage() {
                   <option value="">-- Choose Listing --</option>
                   {properties.map((p) => (
                     <option key={p.id} value={p.id}>
-                      {p.title} (${p.price.toLocaleString()})
+                      {p.title} (₹{p.price.toLocaleString()})
                     </option>
                   ))}
                 </select>

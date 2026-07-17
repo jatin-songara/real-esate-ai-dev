@@ -203,7 +203,7 @@ export default function PropertiesDashboard() {
 
                 <div className="flex items-center justify-between border-t border-slate-100 pt-3 mt-4">
                   <div className="text-sm font-bold text-blue-600">
-                    ${p.price.toLocaleString()}
+                    ₹{p.price.toLocaleString()}
                     {p.type === 'rent' && <span className="text-[9px] text-slate-400 font-normal">/mo</span>}
                   </div>
                   <div className="flex gap-2">
@@ -287,7 +287,7 @@ export default function PropertiesDashboard() {
 
               <div className="grid grid-cols-6 gap-3">
                 <div className="col-span-2">
-                  <label className="block text-[10px] font-semibold text-slate-500 uppercase mb-1">Price ($)</label>
+                  <label className="block text-[10px] font-semibold text-slate-500 uppercase mb-1">Price (₹)</label>
                   <input type="number" value={price} onChange={(e) => setPrice(e.target.value)} className="input-field" placeholder="450000" required />
                 </div>
                 <div>
