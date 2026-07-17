@@ -31,5 +31,13 @@ yarn-error.log*
 *.tsbuildinfo
 
 # environment variables — never commit secrets
+.env
+.env.local
+.env.*.local
+
+# wrangler/cloudflare
+.wrangler/
+.vercel/
+
 
 

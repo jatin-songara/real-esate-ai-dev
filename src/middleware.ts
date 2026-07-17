@@ -1,9 +1,12 @@
-import React from 'react'
+import { NextResponse } from 'next/server'
+import type { NextRequest } from 'next/server'
 
-const middleware = () => {
-  return (
-    <div>middleware</div>
-  )
+export function middleware(request: NextRequest) {
+  return NextResponse.next()
 }
 
-export default middleware
+export const config = {
+  matcher: [
+    '/((?!api|_next/static|_next/image|favicon.ico).*)',
+  ],
+}
