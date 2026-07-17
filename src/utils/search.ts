@@ -1,16 +1,17 @@
-import { getRequestContext } from '@cloudflare/next-on-pages'
+// With OpenNext for Cloudflare, bindings are available via globalThis env
+// eslint-disable-next-line no-var
+declare const __env__: Record<string, any>
 
-// Helper to check and resolve Cloudflare Bindings
 function getCloudflareBindings() {
   try {
-    const context = getRequestContext() as any
-    if (context?.env?.AI && context?.env?.VECTOR_INDEX) {
+    const env = typeof __env__ !== 'undefined' ? __env__ : (globalThis as any).__env__
+    if (env?.AI && env?.VECTOR_INDEX) {
       return {
-        ai: context.env.AI,
-        vectorIndex: context.env.VECTOR_INDEX,
+        ai: env.AI as any,
+        vectorIndex: env.VECTOR_INDEX as any,
       }
     }
-  } catch (e) {
+  } catch {
     // Falls back during local npm run dev
   }
   return null
@@ -24,7 +25,7 @@ export async function generateEmbedding(text: string): Promise<number[]> {
     return Array.from({ length: 384 }, () => Math.random())
   }
 
-  const response = await bindings.ai.run('@cf/baai/bge-small-en-v1.5', {
+  const response = await (bindings.ai as any).run('@cf/baai/bge-small-en-v1.5', {
     text: [text],
   })
 

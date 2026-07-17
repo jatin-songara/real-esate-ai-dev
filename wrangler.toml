@@ -1,9 +1,17 @@
 name = "nuvantasoft-in"
-compatibility_date = "2024-05-02"
+compatibility_date = "2024-09-23"
 compatibility_flags = ["nodejs_compat"]
+main = ".open-next/worker.js"
+
+[build]
+command = "npm run build"
+
+[assets]
+directory = ".open-next/assets"
+binding = "ASSETS"
 
 [vars]
-NEXT_PUBLIC_APP_URL = "http://localhost:3000"
+NEXT_PUBLIC_APP_URL = "https://nuvantasoft-in.pages.dev"
 
 [[d1_databases]]
 binding = "DB"
