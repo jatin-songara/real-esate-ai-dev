@@ -1,3 +1,0 @@
-module.exports=[90430,a=>{"use strict";var b=a.i(7997);a.s(["default",0,function({children:a}){return(0,b.jsx)("div",{className:"flex min-h-screen flex-col items-center justify-center p-4 bg-slate-50",children:(0,b.jsxs)("div",{className:"w-full max-w-md bg-white rounded-xl shadow-lg border border-slate-100 p-8",children:[(0,b.jsxs)("div",{className:"flex flex-col items-center mb-6",children:[(0,b.jsxs)("div",{className:"text-2xl font-bold tracking-tight text-slate-800",children:["Real Estate ",(0,b.jsx)("span",{className:"text-blue-600",children:"AI calling"})]}),(0,b.jsx)("p",{className:"text-sm text-slate-500 mt-1",children:"SaaS Partner Portal"})]}),a]})})}])},67782,a=>{a.n(a.i(90430))}];
-
-//# sourceMappingURL=src_app_%28auth%29_layout_tsx_1gtd5vn._.js.map

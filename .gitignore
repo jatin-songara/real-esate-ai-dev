@@ -41,3 +41,6 @@ yarn-error.log*
 
 
 
+
+# OpenNext Cloudflare build output
+.open-next/
