@@ -50,20 +50,14 @@ export default function WebsiteBuilderPage() {
     }
   }
 
-  if (!business?.website_addon_subscribed) {
+  if (!business) {
     return (
-      <div className="card-surface p-12 text-center flex flex-col items-center justify-center space-y-4 max-w-xl mx-auto">
-        <Layout className="w-10 h-10 text-slate-350" />
-        <h4 className="text-sm font-semibold text-slate-700">Subdomain Site Builder Add-on Required</h4>
-        <p className="text-xs text-slate-400">
-          Unlock a dedicated subdomain template featuring map coordinates, visual custom images, and automated widget loading for **$29/month**.
-        </p>
-        <a href="/dashboard/settings" className="btn-primary py-2 px-6 text-xs">
-          Activate Builder in Settings
-        </a>
+      <div className="flex items-center justify-center p-12">
+        <span className="text-xs text-slate-500 animate-pulse">Loading settings...</span>
       </div>
     )
   }
+
 
   return (
     <div className="space-y-6 pb-12">
