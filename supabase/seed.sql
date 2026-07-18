@@ -27,9 +27,10 @@ VALUES (
 )
 ON CONFLICT (id) DO NOTHING;
 
-INSERT INTO auth.identities (id, user_id, identity_data, provider, last_sign_in_at, created_at, updated_at)
+INSERT INTO auth.identities (provider_id, user_id, identity_data, provider, last_sign_in_at, created_at, updated_at)
 VALUES (
-    'a0a00000-0000-0000-0000-000000000001', 'a0a00000-0000-0000-0000-000000000001',
+    'a0a00000-0000-0000-0000-000000000001',
+    'a0a00000-0000-0000-0000-000000000001',
     '{"sub":"a0a00000-0000-0000-0000-000000000001","email":"admin@nuvanta.ai"}'::jsonb,
     'email', NOW(), NOW(), NOW()
 )
@@ -60,9 +61,10 @@ VALUES (
 )
 ON CONFLICT (id) DO NOTHING;
 
-INSERT INTO auth.identities (id, user_id, identity_data, provider, last_sign_in_at, created_at, updated_at)
+INSERT INTO auth.identities (provider_id, user_id, identity_data, provider, last_sign_in_at, created_at, updated_at)
 VALUES (
-    'b0b00000-0000-0000-0000-000000000002', 'b0b00000-0000-0000-0000-000000000002',
+    'b0b00000-0000-0000-0000-000000000002',
+    'b0b00000-0000-0000-0000-000000000002',
     '{"sub":"b0b00000-0000-0000-0000-000000000002","email":"owner.premium@nuvanta.ai"}'::jsonb,
     'email', NOW(), NOW(), NOW()
 )
@@ -93,9 +95,10 @@ VALUES (
 )
 ON CONFLICT (id) DO NOTHING;
 
-INSERT INTO auth.identities (id, user_id, identity_data, provider, last_sign_in_at, created_at, updated_at)
+INSERT INTO auth.identities (provider_id, user_id, identity_data, provider, last_sign_in_at, created_at, updated_at)
 VALUES (
-    'c0c00000-0000-0000-0000-000000000003', 'c0c00000-0000-0000-0000-000000000003',
+    'c0c00000-0000-0000-0000-000000000003',
+    'c0c00000-0000-0000-0000-000000000003',
     '{"sub":"c0c00000-0000-0000-0000-000000000003","email":"owner.free@nuvanta.ai"}'::jsonb,
     'email', NOW(), NOW(), NOW()
 )
@@ -126,9 +129,10 @@ VALUES (
 )
 ON CONFLICT (id) DO NOTHING;
 
-INSERT INTO auth.identities (id, user_id, identity_data, provider, last_sign_in_at, created_at, updated_at)
+INSERT INTO auth.identities (provider_id, user_id, identity_data, provider, last_sign_in_at, created_at, updated_at)
 VALUES (
-    'd0d00000-0000-0000-0000-000000000004', 'd0d00000-0000-0000-0000-000000000004',
+    'd0d00000-0000-0000-0000-000000000004',
+    'd0d00000-0000-0000-0000-000000000004',
     '{"sub":"d0d00000-0000-0000-0000-000000000004","email":"agent@nuvanta.ai"}'::jsonb,
     'email', NOW(), NOW(), NOW()
 )
@@ -159,9 +163,10 @@ VALUES (
 )
 ON CONFLICT (id) DO NOTHING;
 
-INSERT INTO auth.identities (id, user_id, identity_data, provider, last_sign_in_at, created_at, updated_at)
+INSERT INTO auth.identities (provider_id, user_id, identity_data, provider, last_sign_in_at, created_at, updated_at)
 VALUES (
-    'e0e00000-0000-0000-0000-000000000005', 'e0e00000-0000-0000-0000-000000000005',
+    'e0e00000-0000-0000-0000-000000000005',
+    'e0e00000-0000-0000-0000-000000000005',
     '{"sub":"e0e00000-0000-0000-0000-000000000005","email":"buyer@nuvanta.ai"}'::jsonb,
     'email', NOW(), NOW(), NOW()
 )
