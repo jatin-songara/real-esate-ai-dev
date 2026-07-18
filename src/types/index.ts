@@ -116,3 +116,14 @@ export interface ChatMessage {
   image_url?: string;
   created_at: string;
 }
+
+export interface Service {
+  id: string;
+  business_id: string;
+  title: string;
+  type: string;
+  price: number;
+  active: boolean;
+  desc_text?: string;
+  created_at: string;
+}

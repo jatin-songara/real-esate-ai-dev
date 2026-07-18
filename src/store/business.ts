@@ -1,16 +1,18 @@
 import { create } from 'zustand'
-import { Business, Property, Agent, Appointment } from '../types'
+import { Business, Property, Agent, Appointment, Service } from '../types'
 
 interface BusinessState {
   business: Business | null;
   properties: Property[];
   agents: Agent[];
   appointments: Appointment[];
+  services: Service[];
   isLoading: boolean;
   setBusiness: (business: Business | null) => void;
   setProperties: (properties: Property[]) => void;
   setAgents: (agents: Agent[]) => void;
   setAppointments: (appointments: Appointment[]) => void;
+  setServices: (services: Service[]) => void;
   setIsLoading: (isLoading: boolean) => void;
   addProperty: (property: Property) => void;
   updateProperty: (property: Property) => void;
@@ -20,6 +22,9 @@ interface BusinessState {
   deleteAgent: (id: string) => void;
   addAppointment: (appointment: Appointment) => void;
   updateAppointment: (appointment: Appointment) => void;
+  addService: (service: Service) => void;
+  updateService: (service: Service) => void;
+  deleteService: (id: string) => void;
 }
 
 export const useBusinessStore = create<BusinessState>((set) => ({
@@ -27,11 +32,13 @@ export const useBusinessStore = create<BusinessState>((set) => ({
   properties: [],
   agents: [],
   appointments: [],
+  services: [],
   isLoading: false,
   setBusiness: (business) => set({ business }),
   setProperties: (properties) => set({ properties }),
   setAgents: (agents) => set({ agents }),
   setAppointments: (appointments) => set({ appointments }),
+  setServices: (services) => set({ services }),
   setIsLoading: (isLoading) => set({ isLoading }),
   addProperty: (property) => set((state) => ({ properties: [...state.properties, property] })),
   updateProperty: (property) =>
@@ -56,5 +63,14 @@ export const useBusinessStore = create<BusinessState>((set) => ({
   updateAppointment: (appointment) =>
     set((state) => ({
       appointments: state.appointments.map((a) => (a.id === appointment.id ? appointment : a)),
+    })),
+  addService: (service) => set((state) => ({ services: [...state.services, service] })),
+  updateService: (service) =>
+    set((state) => ({
+      services: state.services.map((s) => (s.id === service.id ? service : s)),
+    })),
+  deleteService: (id) =>
+    set((state) => ({
+      services: state.services.filter((s) => s.id !== id),
     })),
 }))

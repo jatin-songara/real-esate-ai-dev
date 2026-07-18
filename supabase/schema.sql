@@ -131,6 +131,19 @@ CREATE TABLE IF NOT EXISTS public.chat_messages (
     created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL
 );
 
+-- 10. Services
+CREATE TABLE IF NOT EXISTS public.services (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    business_id UUID REFERENCES public.businesses(id) ON DELETE CASCADE NOT NULL,
+    title TEXT NOT NULL,
+    type TEXT NOT NULL,
+    price NUMERIC DEFAULT 0 NOT NULL,
+    active BOOLEAN DEFAULT TRUE NOT NULL,
+    desc_text TEXT,
+    created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL
+);
+
+
 -- ── Trigger to sync auth.users with public.profiles ──────────────────────────
 
 CREATE OR REPLACE FUNCTION public.handle_new_user()
@@ -157,6 +170,7 @@ ALTER TABLE public.appointments ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.call_logs ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.support_tickets ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.chat_messages ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.services ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "profiles_owner" ON public.profiles FOR ALL USING (id = auth.uid());
 CREATE POLICY "sessions_owner" ON public.sessions FOR ALL USING (user_id = auth.uid());
@@ -183,6 +197,10 @@ CREATE POLICY "owner_all_messages" ON public.chat_messages FOR ALL USING (
         WHERE b.owner_id = auth.uid()
     )
 );
+CREATE POLICY "owner_all_services" ON public.services FOR ALL USING (
+    business_id IN (SELECT id FROM public.businesses WHERE owner_id = auth.uid())
+);
+
 
 
 -- =============================================================================

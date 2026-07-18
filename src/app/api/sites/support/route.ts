@@ -34,7 +34,7 @@ export async function POST(req: Request) {
 
       const { data: ticket, error } = await supabase
         .from('support_tickets')
-        .insert({ business_id: businessId, client_name: clientName, client_email: clientEmail, subject: subject || 'General Inquiry' })
+        .insert({ business_id: businessId, client_name: clientName, client_email: clientEmail })
         .select()
         .single()
 

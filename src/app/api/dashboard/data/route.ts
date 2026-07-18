@@ -10,12 +10,13 @@ export async function GET() {
     const supabase = await createClient()
     const businessId = user.business_id
 
-    const [{ data: properties }, { data: agents }, { data: appointments }, { data: tickets }] =
+    const [{ data: properties }, { data: agents }, { data: appointments }, { data: tickets }, { data: services }] =
       await Promise.all([
         supabase.from('properties').select('*').eq('business_id', businessId).order('created_at', { ascending: false }),
         supabase.from('agents').select('*').eq('business_id', businessId).order('created_at', { ascending: false }),
         supabase.from('appointments').select('*').eq('business_id', businessId).order('slot_time', { ascending: true }),
         supabase.from('support_tickets').select('*').eq('business_id', businessId).order('created_at', { ascending: false }),
+        supabase.from('services').select('*').eq('business_id', businessId).order('created_at', { ascending: false }),
       ])
 
     return NextResponse.json({
@@ -29,6 +30,7 @@ export async function GET() {
       agents: agents || [],
       appointments: appointments || [],
       tickets: tickets || [],
+      services: services || [],
     })
   } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 500 })

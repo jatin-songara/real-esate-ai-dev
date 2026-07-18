@@ -368,3 +368,43 @@ ON CONFLICT (id) DO NOTHING;
 INSERT INTO public.chat_messages (id, ticket_id, sender, message, image_url, created_at)
 VALUES ('91000000-0000-0000-0000-000000000001', 'd1000000-0000-0000-0000-000000000001', 'client', 'Hi, I booked a slot for Bangalore penthouse tomorrow, but I might be late by 30 minutes. Is that fine?', NULL, NOW() - INTERVAL '12 hours')
 ON CONFLICT (id) DO NOTHING;
+
+
+-- =============================================================================
+-- SERVICES CATALOG SEED DATA
+-- =============================================================================
+
+-- Premium Business Services
+INSERT INTO public.services (id, business_id, title, type, price, active, desc_text, created_at)
+VALUES (
+    'f2000000-0000-0000-0000-000000000001', 'b1000000-0000-0000-0000-000000000001',
+    'Property Viewing Visit', 'Viewing Property', 50, TRUE,
+    'Clients tour residential, commercial, or apartment properties in person.', NOW()
+)
+ON CONFLICT (id) DO NOTHING;
+
+INSERT INTO public.services (id, business_id, title, type, price, active, desc_text, created_at)
+VALUES (
+    'f2000000-0000-0000-0000-000000000002', 'b1000000-0000-0000-0000-000000000001',
+    'Home Buyer Consultation meeting', 'Buyer Consultation', 0, TRUE,
+    'Introductory call or meeting to analyze credit parameters and budget options.', NOW()
+)
+ON CONFLICT (id) DO NOTHING;
+
+INSERT INTO public.services (id, business_id, title, type, price, active, desc_text, created_at)
+VALUES (
+    'f2000000-0000-0000-0000-000000000003', 'b1000000-0000-0000-0000-000000000001',
+    'Commercial Lease Walkthrough', 'Commercial Rental', 100, FALSE,
+    'Comprehensive property tour for retail or corporate commercial offices.', NOW()
+)
+ON CONFLICT (id) DO NOTHING;
+
+-- Free Business Services
+INSERT INTO public.services (id, business_id, title, type, price, active, desc_text, created_at)
+VALUES (
+    'f2000000-0000-0000-0000-000000000004', 'b1000000-0000-0000-0000-000000000002',
+    'Basic Property Walkthrough', 'Viewing Property', 0, TRUE,
+    'Standard agent-guided walk-through of the listing.', NOW()
+)
+ON CONFLICT (id) DO NOTHING;
+

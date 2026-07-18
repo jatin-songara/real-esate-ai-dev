@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useEffect, useState } from 'react'
 import { useBusinessStore } from '../store/business'
-import { Business, Property, Agent, Appointment } from '../types'
+import { Business, Property, Agent, Appointment, Service } from '../types'
 
 const BusinessContext = createContext<any>(null)
 
@@ -12,6 +12,7 @@ export const BusinessProvider = ({ children }: { children: React.ReactNode }) =>
     setProperties,
     setAgents,
     setAppointments,
+    setServices,
   } = useBusinessStore()
 
   const [isLoading, setIsLoading] = useState(true)
@@ -26,11 +27,13 @@ export const BusinessProvider = ({ children }: { children: React.ReactNode }) =>
         setProperties((data.properties || []) as Property[])
         setAgents((data.agents || []) as Agent[])
         setAppointments((data.appointments || []) as Appointment[])
+        setServices((data.services || []) as Service[])
       } else {
         setBusiness(null)
         setProperties([])
         setAgents([])
         setAppointments([])
+        setServices([])
       }
     } catch (err) {
       console.error('Error hydrating business store from D1:', err)
