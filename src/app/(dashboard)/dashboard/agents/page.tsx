@@ -10,6 +10,7 @@ export default function AgentsDashboard() {
   const [showModal, setShowModal] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)
   const [copiedId, setCopiedId] = useState<string | null>(null)
+  const [errorMsg, setErrorMsg] = useState('')
 
   // Form states
   const [name, setName] = useState('')
@@ -41,6 +42,7 @@ export default function AgentsDashboard() {
     setWidgetTheme('light')
     setInterpretationLevel('medium')
     setServiceType('Viewing Property')
+    setErrorMsg('')
     setShowModal(true)
   }
 
@@ -57,6 +59,7 @@ export default function AgentsDashboard() {
     setWidgetTheme(a.widget_theme)
     setInterpretationLevel(a.interpretation_level || 'medium')
     setServiceType(a.service_type || 'Viewing Property')
+    setErrorMsg('')
     setShowModal(true)
   }
 
@@ -95,6 +98,7 @@ export default function AgentsDashboard() {
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!business) return
+    setErrorMsg('')
 
     const payload = {
       property_id: propertyId || null,
@@ -120,6 +124,9 @@ export default function AgentsDashboard() {
         const data = await res.json()
         if (res.ok && data.agent) {
           updateAgent(data.agent)
+          setShowModal(false)
+        } else {
+          setErrorMsg(data.error || 'Failed to update agent')
         }
       } else {
         const res = await fetch('/api/dashboard/agents', {
@@ -130,11 +137,13 @@ export default function AgentsDashboard() {
         const data = await res.json()
         if (res.ok && data.agent) {
           addAgent(data.agent)
+          setShowModal(false)
+        } else {
+          setErrorMsg(data.error || 'Failed to create agent')
         }
       }
-      setShowModal(false)
-    } catch (err) {
-      console.error('Error saving agent:', err)
+    } catch (err: any) {
+      setErrorMsg(err.message || 'An error occurred')
     }
   }
 
@@ -247,6 +256,11 @@ export default function AgentsDashboard() {
             </header>
 
             <form onSubmit={handleSave} className="p-6 space-y-4">
+              {errorMsg && (
+                <div className="p-3 text-xs text-red-800 bg-red-50 border border-red-200 rounded-lg">
+                  {errorMsg}
+                </div>
+              )}
               {/* Template Buttons */}
               {!editingId && (
                 <div>
