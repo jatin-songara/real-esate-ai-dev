@@ -220,13 +220,13 @@ ON CONFLICT (id) DO NOTHING;
 -- PREMIUM PORTFOLIO DATA (Properties, AI Agents, Bookings)
 -- =============================================================================
 
--- Property 1: Sea-Facing Luxury Villa
+-- Property 1: Sea-Facing Luxury Villa (using 'f' instead of invalid 'p' in UUID)
 INSERT INTO public.properties (
     id, business_id, title, description, address, city, state, zip, price, type, category, status,
     bedrooms, bathrooms, parking_spaces, sqft, year_built, amenities, images, created_at
 )
 VALUES (
-    'p1000000-0000-0000-0000-000000000001',
+    'f1000000-0000-0000-0000-000000000001',
     'b1000000-0000-0000-0000-000000000001',
     'Seaside Serenity Villa',
     'Gorgeous 4 BHK luxury villa overlooking the Arabian Sea. Features a private infinity pool, massive beachfront deck, custom designer kitchen, and top-tier security systems.',
@@ -245,7 +245,7 @@ INSERT INTO public.properties (
     bedrooms, bathrooms, parking_spaces, sqft, year_built, amenities, images, created_at
 )
 VALUES (
-    'p1000000-0000-0000-0000-000000000002',
+    'f1000000-0000-0000-0000-000000000002',
     'b1000000-0000-0000-0000-000000000001',
     'Skyline heights Penthouse',
     'Breathtaking 3 BHK penthouse located in Koramangala. Double-height ceilings, private elevator access, and a massive wrap-around private terrace.',
@@ -266,7 +266,7 @@ INSERT INTO public.agents (
 VALUES (
     'a1000000-0000-0000-0000-000000000001',
     'b1000000-0000-0000-0000-000000000001',
-    'p1000000-0000-0000-0000-000000000001',
+    'f1000000-0000-0000-0000-000000000001',
     'Rohan', 'alloy', 'professional',
     'Hello! Thanks for calling Apex Horizon Realty. My name is Rohan. I can answer any questions you have about our Seaside Serenity Luxury Villa in Bandra. How can I help you today?',
     'English',
@@ -283,7 +283,7 @@ INSERT INTO public.agents (
 VALUES (
     'a1000000-0000-0000-0000-000000000002',
     'b1000000-0000-0000-0000-000000000001',
-    'p1000000-0000-0000-0000-000000000002',
+    'f1000000-0000-0000-0000-000000000002',
     'Priya', 'shimmer', 'enthusiastic',
     'Hi there! Priya here from Apex Horizon Realty. I am super excited to tell you about our Skyline Heights Penthouse in Koramangala. What details can I share with you?',
     'English',
@@ -297,7 +297,7 @@ INSERT INTO public.appointments (
     id, business_id, property_id, client_name, client_email, client_phone, slot_time, status, payment_status, payment_amount, created_at
 )
 VALUES (
-    'e1000000-0000-0000-0000-000000000001', 'b1000000-0000-0000-0000-000000000001', 'p1000000-0000-0000-0000-000000000001',
+    'e1000000-0000-0000-0000-000000000001', 'b1000000-0000-0000-0000-000000000001', 'f1000000-0000-0000-0000-000000000001',
     'Aditya Sharma', 'aditya.sharma@example.com', '+919876543210', NOW() + INTERVAL '1 day', 'confirmed', 'paid_cash', 0, NOW() - INTERVAL '2 hours'
 )
 ON CONFLICT (id) DO NOTHING;
@@ -313,7 +313,7 @@ INSERT INTO public.properties (
     bedrooms, bathrooms, parking_spaces, sqft, year_built, amenities, images, created_at
 )
 VALUES (
-    'p1000000-0000-0000-0000-000000000003',
+    'f1000000-0000-0000-0000-000000000003',
     'b1000000-0000-0000-0000-000000000002',
     'Cosy 2 BHK Bangalore Flat',
     'A charming, well-ventilated 2 BHK apartment located in Whitefield. Features round-the-clock water supply, power backup, and gated community parking.',
@@ -334,7 +334,7 @@ INSERT INTO public.agents (
 VALUES (
     'a1000000-0000-0000-0000-000000000003',
     'b1000000-0000-0000-0000-000000000002',
-    'p1000000-0000-0000-0000-000000000003',
+    'f1000000-0000-0000-0000-000000000003',
     'Kavita', 'shimmer', 'professional',
     'Hello! Welcome to Budget Homes Realty. My name is Kavita. I can assist you with details regarding our Cosy 2 BHK Whitefield flat. What would you like to know?',
     'English',
@@ -348,23 +348,23 @@ ON CONFLICT (id) DO NOTHING;
 -- LOGS & CUSTOMER TICKETS
 -- =============================================================================
 
--- Call Logs
+-- Call Logs (using 'c' instead of invalid 'l' in UUID)
 INSERT INTO public.call_logs (
     id, business_id, agent_id, client_phone, duration, transcript, created_at
 )
 VALUES (
-    'l1000000-0000-0000-0000-000000000001', 'b1000000-0000-0000-0000-000000000001', 'a1000000-0000-0000-0000-000000000001',
+    'c1000000-0000-0000-0000-000000000001', 'b1000000-0000-0000-0000-000000000001', 'a1000000-0000-0000-0000-000000000001',
     '+919999999999', 42,
     '[{"role":"assistant","content":"Hello! Thanks for calling Apex Horizon Realty. My name is Rohan. I can answer any questions you have about our Seaside Serenity Luxury Villa in Bandra. How can I help you today?"},{"role":"user","content":"Hi Rohan, is the villa east-facing as per Vaastu?"},{"role":"assistant","content":"Yes, the villa is fully east-facing and designed according to traditional Vaastu principles."},{"role":"user","content":"Awesome. And how many bedrooms does it have?"},{"role":"assistant","content":"It has 4 spacious bedrooms, all with ensuite bathrooms."}]'::jsonb,
     NOW() - INTERVAL '4 hours'
 )
 ON CONFLICT (id) DO NOTHING;
 
--- Support Ticket & Chat Message
+-- Support Ticket & Chat Message (using 'd' / '9' instead of invalid 't' / 'm' in UUID)
 INSERT INTO public.support_tickets (id, business_id, client_name, client_email, status, created_at)
-VALUES ('t1000000-0000-0000-0000-000000000001', 'b1000000-0000-0000-0000-000000000001', 'Rajesh Patel', 'rajesh.patel@example.com', 'open', NOW() - INTERVAL '1 day')
+VALUES ('d1000000-0000-0000-0000-000000000001', 'b1000000-0000-0000-0000-000000000001', 'Rajesh Patel', 'rajesh.patel@example.com', 'open', NOW() - INTERVAL '1 day')
 ON CONFLICT (id) DO NOTHING;
 
 INSERT INTO public.chat_messages (id, ticket_id, sender, message, image_url, created_at)
-VALUES ('m1000000-0000-0000-0000-000000000001', 't1000000-0000-0000-0000-000000000001', 'client', 'Hi, I booked a slot for Bangalore penthouse tomorrow, but I might be late by 30 minutes. Is that fine?', NULL, NOW() - INTERVAL '12 hours')
+VALUES ('91000000-0000-0000-0000-000000000001', 'd1000000-0000-0000-0000-000000000001', 'client', 'Hi, I booked a slot for Bangalore penthouse tomorrow, but I might be late by 30 minutes. Is that fine?', NULL, NOW() - INTERVAL '12 hours')
 ON CONFLICT (id) DO NOTHING;
