@@ -1,69 +1,28 @@
 import { NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
-import { getDbClient } from '../../../../utils/db'
+import { createAdminClient } from '../../../../utils/supabase/server'
 
 export const runtime = 'edge'
-
-const supabaseUrl =
-  process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_URL.startsWith('http')
-    ? process.env.NEXT_PUBLIC_SUPABASE_URL
-    : 'https://placeholder-project.supabase.co'
-
-const supabaseAdmin = createClient(
-  supabaseUrl,
-  process.env.SUPABASE_SERVICE_ROLE_KEY || 'placeholder_key'
-)
 
 export async function POST(req: Request) {
   try {
     const { agentId } = await req.json()
-    if (!agentId) {
-      return NextResponse.json({ error: 'Agent ID is required' }, { status: 400 })
-    }
+    if (!agentId) return NextResponse.json({ error: 'Agent ID is required' }, { status: 400 })
 
-    // 1. Fetch Agent configuration
-    const dbClient = await getDbClient()
-    let agent: any = null
+    const supabase = await createAdminClient()
 
-    if (dbClient.type === 'd1') {
-      const { results } = await dbClient.db.prepare('SELECT * FROM agents WHERE id = ?').bind(agentId).all()
-      if (results && results.length > 0) {
-        agent = { ...results[0] }
-        if (typeof agent.custom_qa === 'string') {
-          agent.custom_qa = JSON.parse(agent.custom_qa)
-        }
-      }
-    } else {
-      const { data } = await supabaseAdmin.from('agents').select('*').eq('id', agentId).single()
-      agent = data
-    }
+    // 1. Fetch agent
+    const { data: agent } = await supabase.from('agents').select('*').eq('id', agentId).single()
+    if (!agent) return NextResponse.json({ error: 'Agent not found' }, { status: 404 })
 
-    if (!agent) {
-      return NextResponse.json({ error: 'Agent not found' }, { status: 404 })
-    }
-
-    // 2. Fetch associated Property if defined
+    // 2. Fetch associated property
     let propertyDetails = ''
     if (agent.property_id) {
-      let prop: any = null
-      if (dbClient.type === 'd1') {
-        const { results } = await dbClient.db.prepare('SELECT * FROM properties WHERE id = ?').bind(agent.property_id).all()
-        if (results && results.length > 0) {
-          prop = { ...results[0] }
-          if (typeof prop.amenities === 'string') {
-            prop.amenities = JSON.parse(prop.amenities)
-          }
-        }
-      } else {
-        const { data } = await supabaseAdmin.from('properties').select('*').eq('id', agent.property_id).single()
-        prop = data
-      }
-
+      const { data: prop } = await supabase.from('properties').select('*').eq('id', agent.property_id).single()
       if (prop) {
         propertyDetails = `You are a real estate assistant specifically assigned to the listing: "${prop.title}".
 Here are the details of the property:
 - Address: ${prop.address}
-- Price: $${prop.price} (${prop.type === 'rent' ? 'per month rent' : 'for sale'})
+- Price: ₹${prop.price} (${prop.type === 'rent' ? 'per month rent' : 'for sale'})
 - Layout: ${prop.bedrooms} Bedrooms, ${prop.bathrooms} Bathrooms
 - Size: ${prop.sqft} sqft
 - Description: ${prop.description}
@@ -73,17 +32,17 @@ Provide details ONLY about this property. If they ask about other listings, say 
       }
     }
 
-    // 3. Build training Q&A instructions
+    // 3. Build Q&A context
     let qaContext = ''
     if (agent.custom_qa && agent.custom_qa.length > 0) {
       qaContext = 'Use the following predefined questions and answers to respond accurately:\n' +
         agent.custom_qa.map((item: any) => `Q: ${item.question}\nA: ${item.answer}`).join('\n')
     }
 
-    // 4. Construct System Instructions
+    // 4. Construct system instructions
     const systemInstruction = `
 Your name is ${agent.name}. You are a ${agent.personality} real estate voice calling assistant speaking in ${agent.language}.
-Your greeting greeting is: "${agent.greeting}".
+Your greeting is: "${agent.greeting}".
 
 ${propertyDetails}
 
@@ -95,7 +54,7 @@ Core Objectives:
 3. Be concise and conversational, suitable for a real-time phone call.
 `
 
-    // 5. Call OpenAI Sessions API to get ephemeral token
+    // 5. Create OpenAI Realtime session
     const model = process.env.OPENAI_REALTIME_MODEL || 'gpt-4o-realtime-preview-2024-12-17'
     const openAiResponse = await fetch('https://api.openai.com/v1/realtime/sessions', {
       method: 'POST',
@@ -104,7 +63,7 @@ Core Objectives:
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: model,
+        model,
         modalities: ['audio', 'text'],
         voice: agent.voice || 'alloy',
         instructions: systemInstruction,
@@ -133,16 +92,11 @@ Core Objectives:
 
     const sessionData = await openAiResponse.json()
     if (sessionData.error) {
-      console.error('OpenAI Session API error:', sessionData.error)
       return NextResponse.json({ error: sessionData.error.message }, { status: 500 })
     }
 
-    return NextResponse.json({
-      client_secret: sessionData.client_secret.value,
-      agent,
-    })
+    return NextResponse.json({ client_secret: sessionData.client_secret.value, agent })
   } catch (err: any) {
-    console.error('Error creating voice session:', err)
     return NextResponse.json({ error: err.message }, { status: 500 })
   }
 }

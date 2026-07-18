@@ -1,46 +1,31 @@
-import { getDbClient } from './db'
+import { createClient } from './supabase/server'
 
-export async function hashPassword(password: string): Promise<string> {
-  const encoder = new TextEncoder()
-  const data = encoder.encode(password)
-  const hashBuffer = await crypto.subtle.digest('SHA-256', data)
-  const hashArray = Array.from(new Uint8Array(hashBuffer))
-  return hashArray.map((b) => b.toString(16).padStart(2, '0')).join('')
-}
+/** Returns the currently authenticated user + their business, or null. */
+export async function getSessionUser() {
+  try {
+    const supabase = await createClient()
 
-export function getSessionIdFromRequest(req: Request): string | null {
-  const cookieHeader = req.headers.get('cookie') || ''
-  const match = cookieHeader.match(/session=([^;]+)/)
-  return match ? match[1] : null
-}
+    const { data: { user }, error } = await supabase.auth.getUser()
+    if (error || !user) return null
 
-export function setSessionCookie(sessionId: string): string {
-  // Returns Cookie header string: HttpOnly, Secure, 30 days expiry
-  return `session=${sessionId}; Path=/; HttpOnly; SameSite=Lax; Secure; Max-Age=2592000`
-}
+    // Fetch linked business
+    const { data: business } = await supabase
+      .from('businesses')
+      .select('id, name, slug, subscription_tier')
+      .eq('owner_id', user.id)
+      .single()
 
-export function getClearSessionCookie(): string {
-  return `session=; Path=/; HttpOnly; SameSite=Lax; Secure; Max-Age=0`
-}
+    if (!business) return null
 
-export async function getSessionUser(req: Request): Promise<any | null> {
-  const sessionId = getSessionIdFromRequest(req)
-  if (!sessionId) return null
-
-  const dbClient = await getDbClient()
-  if (dbClient.type === 'd1') {
-    const { results } = await dbClient.db
-      .prepare(
-        `SELECT p.id, p.email, b.id as business_id, b.name as business_name, b.slug as business_slug, b.subscription_tier
-         FROM sessions s
-         JOIN profiles p ON s.user_id = p.id
-         JOIN businesses b ON b.owner_id = p.id
-         WHERE s.id = ? AND s.expires_at > datetime('now')`
-      )
-      .bind(sessionId)
-      .all()
-
-    return results && results.length > 0 ? results[0] : null
+    return {
+      id: user.id,
+      email: user.email,
+      business_id: business.id,
+      business_name: business.name,
+      business_slug: business.slug,
+      subscription_tier: business.subscription_tier,
+    }
+  } catch {
+    return null
   }
-  return null
 }

@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
-import { getDbClient } from '../../../../utils/db'
-import { hashPassword, setSessionCookie } from '../../../../utils/auth'
+import { createClient } from '../../../../utils/supabase/server'
+import { createAdminClient } from '../../../../utils/supabase/server'
 
 export const runtime = 'edge'
 
@@ -12,54 +12,40 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'All fields are required' }, { status: 400 })
     }
 
-    const dbClient = await getDbClient()
-    if (dbClient.type !== 'd1') {
-      return NextResponse.json({ error: 'Database binding not configured' }, { status: 500 })
+    const supabase = await createClient()
+
+    // 1. Sign up with Supabase Auth
+    const { data, error } = await supabase.auth.signUp({ email, password })
+
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 400 })
     }
 
-    // 1. Verify if user already exists
-    const { results: existingUsers } = await dbClient.db
-      .prepare('SELECT id FROM profiles WHERE email = ?')
-      .bind(email)
-      .all()
-
-    if (existingUsers && existingUsers.length > 0) {
-      return NextResponse.json({ error: 'Email already registered' }, { status: 400 })
+    const userId = data.user?.id
+    if (!userId) {
+      return NextResponse.json({ error: 'Failed to create user' }, { status: 500 })
     }
 
-    // 2. Hash password
-    const hashedPassword = await hashPassword(password)
-    const userId = crypto.randomUUID()
-    const businessId = crypto.randomUUID()
-    const sessionId = crypto.randomUUID()
-
-    // 3. Perform inserts in D1
-    // Insert profile
-    await dbClient.db
-      .prepare('INSERT INTO profiles (id, email, password_hash) VALUES (?, ?, ?)')
-      .bind(userId, email, hashedPassword)
-      .run()
-
-    // Insert business
+    // 2. Create linked business using admin client (bypasses RLS)
+    const admin = await createAdminClient()
     const formattedSlug = slug.toLowerCase().replace(/[^a-z0-9-]/g, '')
-    await dbClient.db
-      .prepare('INSERT INTO businesses (id, owner_id, name, slug, subscription_tier) VALUES (?, ?, ?, ?, ?)')
-      .bind(businessId, userId, businessName, formattedSlug, 'Free')
-      .run()
+    const businessId = crypto.randomUUID()
 
-    // Insert session (30 days)
-    const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
-    await dbClient.db
-      .prepare('INSERT INTO sessions (id, user_id, expires_at) VALUES (?, ?, ?)')
-      .bind(sessionId, userId, expiresAt)
-      .run()
+    const { error: bizError } = await admin.from('businesses').insert({
+      id: businessId,
+      owner_id: userId,
+      name: businessName,
+      slug: formattedSlug,
+      subscription_tier: 'Free',
+    })
 
-    // 4. Return response with cookie
-    const response = NextResponse.json({ success: true, userId, businessId })
-    response.headers.set('Set-Cookie', setSessionCookie(sessionId))
-    return response
+    if (bizError) {
+      return NextResponse.json({ error: bizError.message }, { status: 500 })
+    }
+
+    return NextResponse.json({ success: true, userId, businessId })
   } catch (err: any) {
     console.error('Signup error:', err)
-    return NextResponse.json({ error: err.message }, { status: 550 })
+    return NextResponse.json({ error: err.message }, { status: 500 })
   }
 }

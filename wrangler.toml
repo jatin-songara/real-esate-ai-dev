@@ -13,10 +13,8 @@ binding = "ASSETS"
 [vars]
 NEXT_PUBLIC_APP_URL = "https://nuvantasoft-in.pages.dev"
 
-[[d1_databases]]
-binding = "DB"
-database_name = "real-estate-calling-agent-db"
-database_id = "real_estate_d1_id_placeholder"
+# Note: Database is now Supabase — no D1 binding needed.
+# AI and Vectorize are still used for semantic search.
 
 [ai]
 binding = "AI"

@@ -1,36 +1,23 @@
 import { NextResponse } from 'next/server'
-import { getDbClient } from '../../../../utils/db'
 import { getSessionUser } from '../../../../utils/auth'
+import { createClient } from '../../../../utils/supabase/server'
 
 export const runtime = 'edge'
 
-export async function GET(req: Request) {
+export async function GET() {
   try {
-    const user = await getSessionUser(req)
+    const user = await getSessionUser()
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-    const dbClient = await getDbClient()
-    if (dbClient.type !== 'd1') return NextResponse.json({ error: 'D1 not configured' }, { status: 500 })
+    const supabase = await createClient()
+    const { data: logs } = await supabase
+      .from('call_logs')
+      .select('*')
+      .eq('business_id', user.business_id)
+      .order('created_at', { ascending: false })
 
-    const { results: rawLogs } = await dbClient.db
-      .prepare('SELECT * FROM call_logs WHERE business_id = ? ORDER BY created_at DESC')
-      .bind(user.business_id)
-      .all()
-
-    const logs = (rawLogs || []).map((l: any) => {
-      const item = { ...l }
-      if (typeof item.transcript === 'string') {
-        try {
-          item.transcript = JSON.parse(item.transcript)
-        } catch (_) {
-          item.transcript = []
-        }
-      }
-      return item
-    })
-
-    return NextResponse.json({ logs })
+    return NextResponse.json({ logs: logs || [] })
   } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 550 })
+    return NextResponse.json({ error: err.message }, { status: 500 })
   }
 }

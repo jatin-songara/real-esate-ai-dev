@@ -1,211 +1,72 @@
 import { NextResponse } from 'next/server'
-import { getDbClient } from '../../../../utils/db'
 import { getSessionUser } from '../../../../utils/auth'
+import { createClient } from '../../../../utils/supabase/server'
 
 export const runtime = 'edge'
 
-// 1. Add new Property
 export async function POST(req: Request) {
   try {
-    const user = await getSessionUser(req)
+    const user = await getSessionUser()
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-    const {
-      title,
-      description,
-      address,
-      city,
-      state,
-      zip,
-      price,
-      type,
-      category,
-      status,
-      bedrooms,
-      bathrooms,
-      parking_spaces,
-      sqft,
-      year_built,
-      amenities,
-      images,
-    } = await req.json()
+    const body = await req.json()
+    const supabase = await createClient()
 
-    const dbClient = await getDbClient()
-    if (dbClient.type !== 'd1') return NextResponse.json({ error: 'D1 not configured' }, { status: 500 })
+    const { data: property, error } = await supabase
+      .from('properties')
+      .insert({ ...body, business_id: user.business_id })
+      .select()
+      .single()
 
-    const id = crypto.randomUUID()
-    const amenitiesJson = JSON.stringify(amenities || [])
-    const imagesJson = JSON.stringify(images || [])
-
-    await dbClient.db
-      .prepare(
-        `INSERT INTO properties (id, business_id, title, description, address, city, state, zip, price, type, category, status, bedrooms, bathrooms, parking_spaces, sqft, year_built, amenities, images)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
-      )
-      .bind(
-        id,
-        user.business_id,
-        title,
-        description || '',
-        address,
-        city || '',
-        state || '',
-        zip || '',
-        parseFloat(price),
-        type,
-        category || 'House',
-        status || 'Available',
-        parseInt(bedrooms),
-        parseFloat(bathrooms),
-        parseInt(parking_spaces || 0),
-        parseFloat(sqft),
-        year_built ? parseInt(year_built) : null,
-        amenitiesJson,
-        imagesJson
-      )
-      .run()
-
-    return NextResponse.json({
-      success: true,
-      property: {
-        id,
-        business_id: user.business_id,
-        title,
-        description,
-        address,
-        city,
-        state,
-        zip,
-        price,
-        type,
-        category,
-        status,
-        bedrooms,
-        bathrooms,
-        parking_spaces,
-        sqft,
-        year_built,
-        amenities,
-        images,
-      },
-    })
+    if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+    return NextResponse.json({ success: true, property })
   } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 550 })
+    return NextResponse.json({ error: err.message }, { status: 500 })
   }
 }
 
-// 2. Update existing Property
 export async function PUT(req: Request) {
   try {
-    const user = await getSessionUser(req)
+    const user = await getSessionUser()
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-    const {
-      id,
-      title,
-      description,
-      address,
-      city,
-      state,
-      zip,
-      price,
-      type,
-      category,
-      status,
-      bedrooms,
-      bathrooms,
-      parking_spaces,
-      sqft,
-      year_built,
-      amenities,
-      images,
-    } = await req.json()
+    const { id, ...body } = await req.json()
+    const supabase = await createClient()
 
-    const dbClient = await getDbClient()
-    if (dbClient.type !== 'd1') return NextResponse.json({ error: 'D1 not configured' }, { status: 500 })
+    const { data: property, error } = await supabase
+      .from('properties')
+      .update(body)
+      .eq('id', id)
+      .eq('business_id', user.business_id)
+      .select()
+      .single()
 
-    const amenitiesJson = JSON.stringify(amenities || [])
-    const imagesJson = JSON.stringify(images || [])
-
-    await dbClient.db
-      .prepare(
-        `UPDATE properties
-         SET title = ?, description = ?, address = ?, city = ?, state = ?, zip = ?, price = ?, type = ?, category = ?, status = ?, bedrooms = ?, bathrooms = ?, parking_spaces = ?, sqft = ?, year_built = ?, amenities = ?, images = ?
-         WHERE id = ? AND business_id = ?`
-      )
-      .bind(
-        title,
-        description || '',
-        address,
-        city || '',
-        state || '',
-        zip || '',
-        parseFloat(price),
-        type,
-        category || 'House',
-        status || 'Available',
-        parseInt(bedrooms),
-        parseFloat(bathrooms),
-        parseInt(parking_spaces || 0),
-        parseFloat(sqft),
-        year_built ? parseInt(year_built) : null,
-        amenitiesJson,
-        imagesJson,
-        id,
-        user.business_id
-      )
-      .run()
-
-    return NextResponse.json({
-      success: true,
-      property: {
-        id,
-        business_id: user.business_id,
-        title,
-        description,
-        address,
-        city,
-        state,
-        zip,
-        price,
-        type,
-        category,
-        status,
-        bedrooms,
-        bathrooms,
-        parking_spaces,
-        sqft,
-        year_built,
-        amenities,
-        images,
-      },
-    })
+    if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+    return NextResponse.json({ success: true, property })
   } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 550 })
+    return NextResponse.json({ error: err.message }, { status: 500 })
   }
 }
 
-// 3. Delete Property
 export async function DELETE(req: Request) {
   try {
-    const user = await getSessionUser(req)
+    const user = await getSessionUser()
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
     const { searchParams } = new URL(req.url)
     const id = searchParams.get('id')
+    if (!id) return NextResponse.json({ error: 'ID required' }, { status: 400 })
 
-    if (!id) return NextResponse.json({ error: 'ID is required' }, { status: 400 })
+    const supabase = await createClient()
+    const { error } = await supabase
+      .from('properties')
+      .delete()
+      .eq('id', id)
+      .eq('business_id', user.business_id)
 
-    const dbClient = await getDbClient()
-    if (dbClient.type !== 'd1') return NextResponse.json({ error: 'D1 not configured' }, { status: 500 })
-
-    await dbClient.db
-      .prepare('DELETE FROM properties WHERE id = ? AND business_id = ?')
-      .bind(id, user.business_id)
-      .run()
-
+    if (error) return NextResponse.json({ error: error.message }, { status: 500 })
     return NextResponse.json({ success: true })
   } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 550 })
+    return NextResponse.json({ error: err.message }, { status: 500 })
   }
 }
