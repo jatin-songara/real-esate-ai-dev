@@ -1,8 +1,6 @@
 import { NextResponse } from 'next/server'
 import { handleBookAppointment } from '../../../../ai/tools'
 
-export const runtime = 'edge'
-
 export async function POST(req: Request) {
   try {
     const args = await req.json()

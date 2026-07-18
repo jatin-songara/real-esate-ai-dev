@@ -2,8 +2,6 @@ import { NextResponse } from 'next/server'
 import { getSessionUser } from '../../../../utils/auth'
 import { createClient } from '../../../../utils/supabase/server'
 
-export const runtime = 'edge'
-
 export async function PUT(req: Request) {
   try {
     const user = await getSessionUser()

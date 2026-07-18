@@ -1,7 +1,5 @@
 'use client'
 
-export const runtime = 'edge'
-
 import React, { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
 import { Calendar, Clock, DollarSign, CreditCard, Sparkles, MessageSquare, Send, X, ShieldAlert } from 'lucide-react'

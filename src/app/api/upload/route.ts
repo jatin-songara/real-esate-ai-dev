@@ -1,8 +1,6 @@
 import { NextResponse } from 'next/server'
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3'
 
-export const runtime = 'edge'
-
 export async function POST(req: Request) {
   try {
     const formData = await req.formData()
